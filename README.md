@@ -1,38 +1,66 @@
-# Video Studio kit
+# Animix
 
-Make short animated videos from a prompt, on your own computer, with your own Claude subscription.
+A local prompt-to-video studio. Pick a style, describe an idea, and an agent on this computer writes a timed script, speaks the narration, and renders a short animated video.
 
-**▶ [Watch the 1-minute demo](docs/demo.mp4)**: pick a style, write a prompt, get a script, validate, generate.
+Animix is a fork of **[owlinthebarnai/video-studio-kit](https://github.com/owlinthebarnai/video-studio-kit)** by [owlinthebarnai](https://github.com/owlinthebarnai). The original kit is a prompt-to-video studio for Claude Code: 100+ styles, a local voice, generated music, and 50+ video skills, all running on your own Claude subscription. This fork keeps that kit and adds a project dashboard, Indonesian-first voice-over, optional cloud voices, and social scheduling. Thank you to the original author and to every project listed under [Credits](#credits).
 
-You get:
-- **Video Studio**, a local web app. Pick one of 109 styles (93 have a 5-second preview), write a prompt, and Claude writes a timed, scene-by-scene script. Edit it, choose music and an optional voice-over, validate, and Claude Code builds the video.
-- **50+ Claude Code skills** for video: the ten Claude animation styles (pixel art, PS2, comic, brick toy, claymation, paper cutout, retro anime, low poly, risograph, miniature diorama), tvhead stickman explainers, lemo-opuscar's 66 film styles, HyperFrames, Remotion, kinetic type, painted watercolour, cut paper, what-if stick figures, motion-studio anime and reels, cartoon cards in 3D, story-video survival HUD, Blender clay and toon, exploded product views and four science-explainer styles (flat diagram, fluorescence microscopy, 3D molecular, lab notebook).
-- A free local voice (Kokoro) and generated music. **No API keys.**
+The studio UI is called **Animix**. It runs at [http://localhost:4790](http://localhost:4790). Finished videos are copied to `outputs/`.
 
-44 of the previews retell the same story, *the discovery of fire*, so you can compare styles side by side. The others show a clip of each style's own demo film.
+## What you can do
+
+- Browse **109 styles** (93 of them have a 5-second preview), write a prompt, and get a scene-by-scene script. Edit times, visuals, narration, on-screen text, and sound, then render.
+- Start from a **new-video wizard**: idea, title suggestions, number of parts, length, voice-over, aspect ratio, and music.
+- Keep videos on a **dashboard** with folders, search, and status.
+- Generate the script and the video with **Claude Code** or the **Cursor agent**, each on its own subscription login. No separate model API key is required for that step.
+- Add a voice-over. **Kokoro** still runs locally and needs no key (English). Optional cloud voices, with key rotation, are Google Gemini, ElevenLabs, Fish Audio, and Edge TTS. Defaults favour Bahasa Indonesia.
+- Save a **format reference**: a transcript whose structure the agent copies, without copying its topic.
+- Burn short captions on cartoon-3D shorts, compress a finished file for social upload, and draft post metadata.
+- Schedule a post through **[Repliz](https://repliz.com)** when `REPLIZ_ACCESS_KEY` and `REPLIZ_SECRET_KEY` are set.
+
+44 of the style previews retell the same story, *the discovery of fire*, so styles can be compared side by side. The others play a clip of that style's own demo.
+
+API keys live only in `.env` and usage state in `.keys.json`. Both are gitignored. The agent process does not receive them.
+
+## What this fork adds
+
+| Area | Change |
+|---|---|
+| Dashboard | Folder library of videos at `/dashboard`, with search, sort, and status |
+| Wizard | Title ideas, part count, length, voice, format, and music before the script is written |
+| Voice | Provider chain (Gemini → ElevenLabs → Fish Audio → Edge TTS → Kokoro), per-language voices, speed, and a preview |
+| Settings | API keys, voice defaults, and which agent writes and builds (`#settings`) |
+| Agents | Claude Code or Cursor (`cursor-agent`), with a model for scripts and a model for builds |
+| Social | AI post metadata, ffmpeg compression presets, and Repliz upload and scheduling |
+| Captions | Short burned-in captions for `cartoon3d` videos |
+| Launcher | `start-studio.sh` trusts the system CA bundle (useful behind TLS inspection) and opens Chrome from WSL |
+
+The upstream kit's skills, demos, and setup flow are unchanged.
 
 ## Requirements
 
 | | |
 |---|---|
-| [Claude Code](https://claude.com/claude-code), logged in with your Claude plan (Pro or Max) | writes the scripts and builds the videos |
+| [Claude Code](https://claude.com/claude-code) and/or the Cursor agent, logged in | writes scripts and builds videos on your subscription |
 | Node.js 20+ and git | |
-| Python 3.10+ | for the local voice |
+| Python 3.10+ | local Kokoro voice |
 | ffmpeg on your PATH | Windows: `winget install Gyan.FFmpeg` · macOS: `brew install ffmpeg` |
-| Blender 4.2+ (optional) | only for the Blender clay / toon styles. Set `BLENDER` to its path. |
-| ~3 GB of free disk space | dependencies, the voice model and renders |
+| Blender 4.2+ (optional) | only for the Blender clay and toon styles. Set `BLENDER` to its path. |
+| ~3 GB of free disk space | dependencies, the voice model, and renders |
 
-Tested on Windows 11. macOS and Linux should work but are untested.
+Cloud voice and Repliz are optional. Without those keys, the studio still runs on the local Kokoro voice (English) and your agent subscription.
+
+The upstream kit was tested on Windows 11. This fork is also used on Linux and WSL.
 
 ## Install
 
 ```sh
-git clone <this repo> video-studio-kit
+git clone https://github.com/adzibilal/video-studio-kit.git
 cd video-studio-kit
 node setup.mjs          # add --all to also fetch every optional source repo
 ```
 
-The setup script does the following:
+Setup does the following:
+
 1. Checks the requirements.
 2. Clones the third-party repos it needs at pinned versions.
 3. Refreshes the Remotion skills from their own repo.
@@ -41,20 +69,34 @@ The setup script does the following:
 
 You can run it again safely.
 
+Optional keys, in `.env` at the repo root (never commit this file):
+
+```sh
+GEMINI_API_KEY=
+ELEVENLABS_API_KEY=
+FISH_API_KEY=
+EDGE_TTS_KEY=
+REPLIZ_ACCESS_KEY=
+REPLIZ_SECRET_KEY=
+```
+
+Extra keys for the same provider use a numeric suffix (`GEMINI_API_KEY_2`, and so on). The same keys can also be added in the app under Settings.
+
 ## Use
 
-**In the app.** On Windows, double-click `Start Video Studio.cmd`. On macOS or Linux, run `sh start-studio.sh`. It opens http://localhost:4790.
-1. Pick a style on the left. The viewer plays its example.
-2. Write your prompt and press **Write the script**. The whole video uses the style you picked.
-3. Edit the script table: times, what we see, narration, on-screen text, sound, notes.
-4. Choose the voice-over (off by default) and the music.
-5. Press **Validate script & generate video**. Claude Code renders each scene and stitches them. When it finishes, the video opens in a window with **Open folder** and **Save a copy**. Finished videos are also copied to `outputs/`.
+**In the app.** On Windows, double-click `Start Video Studio.cmd`. On macOS or Linux, run `sh start-studio.sh`. On WSL the script opens Chrome on the Windows side. The app listens on http://localhost:4790 and the library is at http://localhost:4790/dashboard.
+
+1. Create a video from the dashboard or press **New video**.
+2. Describe the idea, generate titles, and pick a style. The preview plays that style's example.
+3. Choose parts, length, voice-over, format, and music, then generate the script.
+4. Edit the script table.
+5. Press **Validate script & generate video**. The agent renders each scene and the studio stitches them. When it finishes, the video opens with **Open folder** and **Save a copy**.
 
 **In Claude Code.** Open a terminal in this folder, run `claude`, then type `/video-studio a 30-second story about …`.
 
-## How it uses your subscription
+## How generation is billed
 
-Writing a script is one short Claude Code call. Building a video runs Claude Code headless (`claude -p`) in this folder with file and shell tools: it reads the style's skill, writes the scene code, renders and checks frames. That uses your plan's usage like a long conversation does, and depends on the style and length. Nothing is billed separately, and nothing is sent anywhere except to Claude through Claude Code.
+Writing a script is one short agent call. Building a video runs the chosen agent headless in this folder with file and shell tools: it reads the style's skill, writes the scene code, renders, and checks frames. That uses the agent's plan the same way a long conversation does, and it depends on the style and the length. Voice providers and Repliz are billed by those services only when you use them. Nothing from `.env` is sent to the agent.
 
 ## Speed (Intel laptop GPU)
 
@@ -68,17 +110,23 @@ Writing a script is one short Claude Code call. Building a video runs Claude Cod
 
 | Folder | What's in it |
 |---|---|
-| `video-studio/` | the app (`vs.mjs` server, `agent.mjs` Claude runner, `ui/`, `catalog.json`, `tools/`, `examples/`) |
+| `video-studio/` | the Animix app (`vs.mjs` server, `agent.mjs` runner, `ui/`, `lib/`, `catalog.json`, `tools/`) |
 | `.claude/skills/` | the skills, including `video-studio`, the orchestrator |
 | `studio/` | the tvhead engine, with the Kokoro voice patch |
 | `demos/` | the working setup of each tool that the build recipes start from |
 | `repos/` | third-party sources, cloned by setup (not in git) |
-| `overlays/` | our additions to those sources, applied by setup |
-| `outputs/` | your finished videos (not in git) |
+| `overlays/` | additions to those sources, applied by setup |
+| `outputs/` | finished videos (not in git) |
 
 ## Credits
 
-This kit stands on the work of these open-source projects. Thank you to their authors.
+### Fork source
+
+This repository is forked from **[owlinthebarnai/video-studio-kit](https://github.com/owlinthebarnai/video-studio-kit)**. The studio, the skill catalog, setup, the tvhead engine patch, and the original Video Studio UI come from that project. Animix keeps that work and extends the app. Please treat the upstream repository as the source of the kit.
+
+### Skills and engines
+
+The kit stands on these open-source projects. Thank you to their authors.
 
 - [JohnHeibel/ClaudeAnimationBase](https://github.com/JohnHeibel/ClaudeAnimationBase): the painted watercolour engine (same as painted-animation)
 - [Leonxlnx/earshot](https://github.com/Leonxlnx/earshot): earshot and real-sound: judging and building sound
@@ -105,3 +153,5 @@ Built on: [Claude Code](https://claude.com/claude-code), [Remotion](https://www.
 ## Licences
 
 Third-party code keeps its own licence; see [THIRD_PARTY.md](THIRD_PARTY.md). Remotion's skills are included as published in [remotion-dev/skills](https://github.com/remotion-dev/skills) (that repo has no licence file); Remotion itself has its own licence: https://www.remotion.dev/docs/license
+
+Upstream code in this fork remains under the terms of [owlinthebarnai/video-studio-kit](https://github.com/owlinthebarnai/video-studio-kit).
