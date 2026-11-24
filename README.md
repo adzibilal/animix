@@ -6,6 +6,22 @@ Animix is a fork of **[owlinthebarnai/video-studio-kit](https://github.com/owlin
 
 The studio UI is called **Animix**. It runs at [http://localhost:4790](http://localhost:4790). Finished videos are copied to `outputs/`.
 
+## Screenshots
+
+Taken from a local studio at `http://localhost:4790/`.
+
+**New video.** Pick a style, then write the idea.
+
+![Animix new-video wizard with the style picker open](docs/screenshots/new-video.png)
+
+**Dashboard.** Finished videos, folders, and status.
+
+![Animix dashboard listing videos in folders](docs/screenshots/dashboard.png)
+
+**Editor.** The finished video sits next to the second-by-second script.
+
+![Animix editor showing a finished video and its script](docs/screenshots/editor.png)
+
 ## What you can do
 
 - Browse **109 styles** (93 of them have a 5-second preview), write a prompt, and get a scene-by-scene script. Edit times, visuals, narration, on-screen text, and sound, then render.
