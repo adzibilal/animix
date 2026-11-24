@@ -54,7 +54,7 @@ The upstream kit was tested on Windows 11. This fork is also used on Linux and W
 ## Install
 
 ```sh
-git clone https://github.com/adzibilal/video-studio-kit.git
+git clone https://github.com/adzibilal/animix.git
 cd video-studio-kit
 node setup.mjs          # add --all to also fetch every optional source repo
 ```
