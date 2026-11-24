@@ -3,47 +3,40 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Video Studio</title>
+<title>Animix</title>
+<link rel="icon" type="image/svg+xml" href="/ui/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<script src="/ui/theme.js"></script>
 <link rel="stylesheet" href="/ui/style.css">
 </head>
 <body>
 <div class="app">
-  <aside class="side">
-    <div class="brand">
-      <span class="spark">✳</span>
-      <select id="projectPick" title="Your videos"></select>
-      <button id="newVideo" class="ghost small new-video" title="Start a new video">+ New video</button>
-    </div>
-    <form id="promptForm" class="prompt card">
-      <div class="prompt-style">Style for the video: <b id="promptStyle">pick one below</b></div>
-      <textarea id="prompt" placeholder="Describe the video you want… e.g. A 30-second story about a cat who learns to fly, in comic style"></textarea>
-      <div class="prompt-bar">
-        <select id="newFormat" title="Format"><option value="9:16">9:16</option><option value="16:9">16:9</option><option value="1:1">1:1</option></select>
-        <button id="writeScript" class="primary small">Write the script</button>
-      </div>
-    </form>
-    <div class="cat-head">
-      <span>Styles</span>
-      <input id="filter" placeholder="Filter…">
-    </div>
-    <nav id="catalog" class="catalog"></nav>
-  </aside>
+  <header class="topbar">
+    <a class="tb-brand" href="/dashboard" title="All your videos"><img class="brand-mark" src="/ui/favicon.svg" alt="" width="24" height="24"><span class="brand-word">Anim<em>ix</em></span></a>
+    <span class="tb-sep" aria-hidden="true">/</span>
+    <select id="projectPick" title="Your videos" aria-label="Open a video"></select>
+    <span class="tb-gap"></span>
+    <a href="/dashboard" class="ghost small link tb-dash" title="All videos, in folders">▦ Dashboard</a>
+    <button id="newVideo" class="primary small" title="Start a new video">+ New video</button>
+    <button id="themeBtn" class="ghost small tb-icon" type="button">◐</button>
+    <a id="openSettings" href="#settings" class="ghost small link" title="Settings: API keys, voice, AI" aria-label="Settings">⚙</a>
+  </header>
 
   <main class="main" id="main">
     <section class="stage card">
       <header class="stage-head">
         <div>
-          <span id="previewTitle" class="ptitle">Pick a style on the left</span>
+          <span id="previewTitle" class="ptitle"></span>
           <span id="previewSub" class="psub"></span>
         </div>
         <div class="stage-actions">
-          <button id="useInScene" class="ghost" disabled>Use in scene…</button>
-          <button id="showFinal" class="primary small" hidden>▶ Final video</button>
-          <a href="#project" class="ghost link">Script ↓</a>
+          <button id="playFinal" class="ghost" hidden title="Play the finished video here">▶ Final video</button>
+          <button id="showFinal" class="dark small" hidden title="Save, copy the path or open the folder">⬇ Save / share</button>
         </div>
       </header>
       <div class="player">
-        <video id="player" playsinline muted loop autoplay></video>
+        <video id="player" playsinline muted loop autoplay preload="metadata"></video>
         <div id="noVideo" class="novideo" hidden></div>
         <button id="mute" class="mute" title="Sound">🔇</button>
       </div>
@@ -51,54 +44,231 @@
     </section>
 
     <section class="project card" id="project">
-      <div id="empty" class="empty">
-        <h2>Write a prompt to start</h2>
-        <p>Describe your video in the box on the left. Claude writes the script, scene by scene and second by second, using the styles you see here. You edit it, validate it, and the video gets made.</p>
+      <div id="empty" class="wizard">
+        <header class="wz-head">
+          <div class="wz-badge-row">
+            <span class="wz-kicker">Animix Studio</span>
+            <span class="wz-float-sq" aria-hidden="true">✦</span>
+          </div>
+          <h2>Create a new <span>animated video</span></h2>
+          <p>Claude suggests titles, writes every part second by second, you review, then the video gets made.</p>
+        </header>
+        <section class="wz-step" data-step="1">
+          <h3><span class="num">1</span> Idea</h3>
+          <div id="styleCur" class="style-cur"></div>
+          <div id="stylePick" class="style-pick" hidden>
+            <div class="wz-row"><span id="toolTabs" class="chips"></span><input id="filter" type="search" placeholder="Filter styles…" aria-label="Filter styles"></div>
+            <div id="catalog" class="style-grid"></div>
+          </div>
+          <textarea id="wzTopic" rows="2" placeholder="What is it about? Optional, e.g. cerita horor di sekolah malam hari"></textarea>
+          <div class="wz-ref">
+            <div class="wz-row">
+              <label>Format reference <select id="wzRef" title="A saved transcript of another video: Claude copies its format, not its topic"></select></label>
+              <button id="wzRefEdit" class="ghost small" type="button" hidden>Edit</button>
+              <span id="wzRefInfo" class="muted"></span>
+            </div>
+            <div id="wzRefForm" class="wz-ref-form" hidden>
+              <input id="wzRefName" placeholder="Preset name, e.g. Kamu buat dari 0">
+              <textarea id="wzRefText" rows="6" placeholder="Paste the transcript of a video whose format you like. Claude copies its format (hook, point of view, structure, rhythm, ending), never its topic or sentences. Tags like [musik] are ignored."></textarea>
+              <div class="wz-row"><button id="wzRefSave" class="primary small" type="button">Save preset</button><button id="wzRefCancel" class="ghost small" type="button">Cancel</button><button id="wzRefDel" class="ghost small" type="button">Delete preset</button></div>
+            </div>
+          </div>
+          <div class="wz-row">
+            <select id="wzLang" title="Language of the titles and the narration"><option value="id">Bahasa Indonesia</option><option value="en">English</option></select>
+            <button id="wzIdeas" class="primary small" type="button">✦ Generate title ideas</button>
+            <span id="wzIdeasState" class="muted"></span>
+          </div>
+        </section>
+        <section class="wz-step" data-step="2">
+          <h3><span class="num">2</span> Pick a title</h3>
+          <div id="wzIdeaList" class="idea-list"></div>
+          <input id="wzTitle" placeholder="Title: pick an idea above or write your own">
+          <textarea id="wzLogline" rows="2" placeholder="What happens (one sentence, optional)"></textarea>
+        </section>
+        <section class="wz-step" data-step="3">
+          <h3><span class="num">3</span> How many parts?</h3>
+          <div class="wz-row">
+            <span id="wzPartsPick" class="seg"></span>
+            <label class="muted">or <input id="wzParts" type="number" min="1" max="10" value="1"></label>
+            <label>Length per part <select id="wzSeconds"><option value="0">auto (20–45 s)</option><option value="30">~30 s</option><option value="45">~45 s</option><option value="60">~1 min (60 s)</option><option value="90">~1.5 min (90 s)</option><option value="120">~2 min (120 s)</option><option value="180">~3 min (180 s)</option><option value="240">~4 min (240 s)</option><option value="300">~5 min (300 s)</option><option value="__custom">Custom (s)…</option></select></label>
+            <label id="wzSecondsCustomWrap" class="muted" hidden><input id="wzSecondsCustom" type="number" min="10" max="900" step="5" value="150"> s <span id="wzSecondsHuman"></span></label>
+          </div>
+          <p id="wzPartsNote" class="muted"></p>
+        </section>
+        <section class="wz-step" data-step="4">
+          <h3><span class="num">4</span> Voice-over &amp; format</h3>
+          <div class="wz-row">
+            <label class="vo-on"><input type="checkbox" id="wzVoOn" checked> Voice-over</label>
+            <select id="wzProvider" title="Who speaks the narration"></select>
+            <select id="wzVoice" title="Voice"></select>
+            <label class="vo-speed">Speed <input type="range" id="wzSpeed" min="0.8" max="1.3" step="0.05" value="1"> <span id="wzSpeedVal">1.00×</span></label>
+            <button id="wzPreview" class="ghost small" type="button">▶ Preview</button>
+          </div>
+          <div class="wz-row">
+            <label>Format <select id="newFormat"><option value="9:16">9:16 vertical</option><option value="16:9">16:9 wide</option><option value="1:1">1:1 square</option></select></label>
+            <label>Music <select id="wzMusic"><option value="auto">Claude picks</option><option value="lofi">lo-fi</option><option value="ambient">ambient</option><option value="upbeat">upbeat</option><option value="epic">epic</option><option value="none">none</option></select></label>
+            <a href="#settings" class="vo-link">Keys &amp; defaults</a>
+          </div>
+          <p id="wzVoWarn" class="vo-warn" hidden></p>
+        </section>
+        <section class="wz-step wz-go" data-step="5">
+          <h3><span class="num">5</span> Write the script</h3>
+          <p id="wzSummary" class="muted"></p>
+          <button id="wzGo" class="primary" type="button">✦ Generate script</button>
+          <p class="muted">Next: review every part, then press “Validate script &amp; generate video”.</p>
+        </section>
+        <footer class="brand-foot" aria-hidden="true"><span>Animix</span></footer>
       </div>
       <div id="proj" hidden>
         <header class="proj-head">
           <input id="title" class="title-input" placeholder="Project title">
+          <nav id="partChips" class="part-chips" hidden></nav>
           <div class="proj-meta">
             <select id="projectStyle" title="Style for the whole video"></select>
             <select id="format"><option>9:16</option><option>16:9</option><option>1:1</option></select>
-            <select id="voice">
-              <option value="none">No voice-over</option>
-              <option value="am_michael">Voice-over: Michael</option><option value="am_adam">Voice-over: Adam</option>
-              <option value="bm_george">Voice-over: George (UK)</option><option value="am_onyx">Voice-over: Onyx</option>
+            <select id="targetSeconds" title="Target duration for script generation">
+              <option value="0">Length: auto</option>
+              <option value="30">~30 s</option>
+              <option value="45">~45 s</option>
+              <option value="60">~1 min (60 s)</option>
+              <option value="90">~1.5 min (90 s)</option>
+              <option value="120">~2 min (120 s)</option>
+              <option value="180">~3 min (180 s)</option>
+              <option value="240">~4 min (240 s)</option>
+              <option value="300">~5 min (300 s)</option>
+              <option value="__custom">Custom (s)…</option>
             </select>
+            <span id="targetSecondsCustomWrap" class="len-custom" hidden><input id="targetSecondsCustom" type="number" min="10" max="900" step="5" value="150" aria-label="Target seconds">s</span>
             <select id="music">
               <option value="lofi">Music: lo-fi</option><option value="ambient">Music: ambient</option><option value="upbeat">Music: upbeat</option><option value="epic">Music: epic</option><option value="none">No music</option>
             </select>
             <span id="status" class="status">draft</span>
+            <button id="deleteProject" class="ghost small danger" type="button" title="Delete this project">Delete</button>
           </div>
         </header>
+        <div class="vo-bar" id="voBar">
+          <label class="vo-on"><input type="checkbox" id="voOn"> Voice-over</label>
+          <span id="voOff" class="vo-hint">Off: the video gets music only. Turn it on to have the narration spoken.</span>
+          <span id="voCtl" class="vo-ctl">
+            <select id="voLang" title="Narration language"><option value="id">Bahasa Indonesia</option><option value="en">English</option></select>
+            <select id="voProvider" title="Who speaks the narration"></select>
+            <select id="voVoice" title="Voice"></select>
+            <label class="vo-speed" title="Speaking speed">Speed <input type="range" id="voSpeed" min="0.8" max="1.3" step="0.05"> <span id="voSpeedVal">1.00×</span></label>
+            <input id="voText" placeholder="Type something to hear (or leave empty for the first narration line)">
+            <button id="voPreview" class="ghost small" type="button">▶ Preview</button>
+          </span>
+          <span id="voWarn" class="vo-warn" hidden></span>
+          <span id="voUsed" class="vo-used" hidden></span>
+          <a href="#settings" class="vo-link">Keys &amp; defaults</a>
+        </div>
         <p id="ideaLine" class="idea-line"></p>
 
-        <div id="writing" class="writing" hidden><span class="dot"></span> Claude is writing the script…</div>
+        <div id="writing" class="writing" hidden><span class="dot"></span> AI is writing the script…</div>
+        <div id="scriptError" class="script-err card-inner" hidden>
+          <div>
+            <strong id="errTitle">Script error</strong>
+            <p id="scriptErrorMsg" class="muted"></p>
+          </div>
+          <span class="err-act"><button id="errContinue" class="primary small" type="button" hidden>▶ Continue</button><button id="regenErrorBtn" class="primary small" type="button">↻ Regenerate script</button></span>
+        </div>
 
         <div id="scriptBlock">
           <div class="scenes-head">
             <h2>Script, second by second</h2>
             <span id="total" class="total"></span>
+            <button id="regenScript" class="ghost small" type="button" title="Rewrite the script from the project title, brief and format reference">↻ Regenerate script</button>
             <button id="addScene" class="ghost">+ Scene</button>
           </div>
-          <div class="table-wrap">
-            <table class="scenes">
-              <thead><tr><th>#</th><th>Time (s)</th><th>Style</th><th>What we see</th><th>Narration</th><th>On-screen text</th><th>Sound</th><th>Notes for Claude</th><th></th></tr></thead>
-              <tbody id="sceneRows"></tbody>
-            </table>
-          </div>
+          <div id="sceneRows" class="scene-list"></div>
           <div class="build-bar">
+            <div id="buildProg" class="build-prog" hidden><div class="bp-track"><i id="bpFill"></i></div><span id="bpText"></span></div>
             <span id="saveState" class="savestate"></span>
-            <button id="stop" class="ghost" hidden>Stop</button>
-            <button id="build" class="primary">Validate script & generate video</button>
+            <span id="buildBtns" class="build-btns"></span>
           </div>
         </div>
 
-        <div class="log card-inner">
-          <h3>Progress</h3>
+        <section id="socialCard" class="social-card card-inner" hidden>
+          <header class="social-head">
+            <div>
+              <h2>Social media &amp; Repliz</h2>
+              <p class="muted">Generate post metadata with AI, edit anything, then upload &amp; schedule to your Repliz accounts.</p>
+            </div>
+            <div class="social-head-act">
+              <span id="socialState" class="savestate"></span>
+              <button id="socialGen" class="primary small" type="button">✦ Generate metadata</button>
+            </div>
+          </header>
+
+          <div class="social-grid">
+            <label class="fld s-title">
+              <span class="lbl">Title <em id="socTitleCount" class="count-hint"></em></span>
+              <input id="socTitle" placeholder="Short catchy title (YouTube Shorts, Facebook, Pinterest)">
+            </label>
+            <label class="fld s-topic">
+              <span class="lbl">Threads topic</span>
+              <input id="socTopic" placeholder="e.g. Fakta Unik">
+            </label>
+            <label class="fld s-desc">
+              <span class="lbl">Caption / Description <em id="socDescCount" class="count-hint"></em></span>
+              <textarea id="socDesc" rows="3" placeholder="Hook + caption + CTA (no hashtags here)"></textarea>
+            </label>
+            <label class="fld s-hashtags">
+              <span class="lbl">Hashtags</span>
+              <input id="socHashtags" placeholder="#faktaunik #edukasi #shorts">
+            </label>
+            <label class="fld s-tags">
+              <span class="lbl">YouTube tags (comma-separated)</span>
+              <input id="socTags" placeholder="fakta unik, cara kerja resleting, sains">
+            </label>
+            <label class="fld s-comment">
+              <span class="lbl">First comment <em id="socCommentCount" class="count-hint"></em></span>
+              <input id="socFirstComment" placeholder="Pinned first comment / question (max 150 chars for TikTok)">
+            </label>
+          </div>
+
+          <div class="repliz-box">
+            <header class="repliz-head">
+              <h3>Schedule to Repliz</h3>
+              <button id="replizRefresh" class="ghost small" type="button">↻ Refresh accounts</button>
+              <a href="#settings" class="vo-link">Repliz keys</a>
+            </header>
+            <div id="replizAccounts" class="repliz-accounts"></div>
+            <div id="replizControls" class="repliz-controls" hidden>
+              <div class="row">
+                <label>Schedule at <input type="datetime-local" id="replizAt"></label>
+                <span class="presets" id="replizPresets">
+                  <button type="button" class="ghost small" data-min="10">+10m</button>
+                  <button type="button" class="ghost small" data-min="60">+1h</button>
+                  <button type="button" class="ghost small" data-day="1" data-hour="9">Tomorrow 09:00</button>
+                  <button type="button" class="ghost small" data-day="1" data-hour="19">Tomorrow 19:00</button>
+                </span>
+              </div>
+              <div class="row repliz-opts">
+                <label>Video host <select id="replizHost"><option value="auto">Auto (Repliz Storage → Temp web)</option><option value="temp">Temp web host (pomf2 / uguu / catbox)</option><option value="repliz">Repliz Storage only</option></select></label>
+                <label>Compress <select id="replizCompress"><option value="auto">Auto (if &gt; 85 MB → 1080p HD)</option><option value="balanced">1080p HD (≤ 80 MB)</option><option value="compact">720p Compact (≤ 42 MB)</option><option value="small">540p Small (≤ 24 MB)</option><option value="none">Original (no compression)</option></select></label>
+                <label><input type="checkbox" id="replizAi" checked> AI-generated label</label>
+                <label>YouTube privacy <select id="replizPrivacy"><option value="public">Public</option><option value="unlisted">Unlisted</option><option value="private">Private</option></select></label>
+                <label><input type="checkbox" id="replizFeed" checked> Share IG Reel to feed</label>
+              </div>
+              <div class="row repliz-compress-bar">
+                <span id="replizVideoSize" class="muted"></span>
+                <button id="replizCompressBtn" class="ghost small" type="button">⚡ Compress now</button>
+                <a id="replizDownloadComp" class="ghost small link" hidden download>⬇ Download compressed</a>
+              </div>
+              <p id="replizHostNote" class="muted" hidden></p>
+              <div class="repliz-send-bar">
+                <span id="replizStatus" class="muted"></span>
+                <button id="replizSend" class="dark small" type="button">Schedule to Repliz</button>
+              </div>
+            </div>
+            <div id="replizHistory" class="repliz-history" hidden></div>
+          </div>
+        </section>
+
+        <details id="logBox" class="log card-inner">
+          <summary><span class="log-title">Progress</span> <span id="logLast" class="log-last"></span></summary>
           <ol id="log"></ol>
-        </div>
+        </details>
       </div>
     </section>
   </main>
@@ -109,12 +279,68 @@
       <button id="finalClose" class="ghost">Close</button></header>
     <video id="finalVideo" controls playsinline></video>
     <div class="modal-path"><span>Saved in</span><code id="finalPath"></code><button id="finalCopyPath" class="ghost small">Copy path</button></div>
+    <div class="modal-compress">
+      <span id="finalSizeInfo" class="muted"></span>
+      <select id="finalCompressPreset" aria-label="Compression preset">
+        <option value="balanced">1080p HD (≤ 80 MB)</option>
+        <option value="compact">720p Compact (≤ 42 MB)</option>
+        <option value="small">540p Small (≤ 24 MB)</option>
+      </select>
+      <button id="finalCompressBtn" class="ghost small" type="button">⚡ Compress MP4</button>
+      <a id="finalCompressDownload" class="ghost small link" hidden download>⬇ Save compressed…</a>
+    </div>
     <div class="modal-actions">
+      <button id="finalSocial" class="ghost" type="button">✦ Social &amp; Repliz</button>
       <button id="finalReveal" class="ghost">📂 Open folder</button>
       <a id="finalDownload" class="primary link-btn" download>⬇ Save a copy…</a>
     </div>
   </div>
 </div>
+<div id="settingsModal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+  <div class="modal-card settings-card">
+    <header class="modal-head"><div><span class="modal-kicker">Animix</span><h2 id="settingsTitle">Settings</h2></div>
+      <button id="settingsClose" class="ghost">Close</button></header>
+    <nav class="tabs"><button data-tab="keys" class="tab active">API Keys</button><button data-tab="voice" class="tab">Voice &amp; audio</button><button data-tab="ai" class="tab">AI agent</button></nav>
+    <div id="settingsBody" class="settings-body"></div>
+  </div>
+</div>
+<div id="addPartModal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="addPartTitle">
+  <div class="modal-card add-part-card">
+    <header class="modal-head">
+      <div><span class="modal-kicker">Continue series</span><h2 id="addPartTitle">Add next part</h2></div>
+      <button id="addPartClose" class="ghost" type="button">Close</button>
+    </header>
+    <div id="addPartPrev" class="add-part-prev" hidden></div>
+    <label class="fld">
+      <span class="lbl">What happens in the next part? (audience choice / story direction)</span>
+      <textarea id="addPartDir" rows="4" placeholder="e.g. Audience chose [A] Shrine. The traveler enters the shrine, trades 25% HP for +40% Flame, and encounters a hidden guardian with a new dilemma..."></textarea>
+    </label>
+    <div class="add-part-row">
+      <label class="fld">
+        <span class="lbl">Part title (optional)</span>
+        <input id="addPartName" placeholder="Auto: Series Title (Part N)">
+      </label>
+      <label class="fld">
+        <span class="lbl">Target duration</span>
+        <select id="addPartSec">
+          <option value="0">auto (20–45 s)</option>
+          <option value="30">~30 s</option>
+          <option value="45">~45 s</option>
+          <option value="60">~1 min (60 s)</option>
+          <option value="90">~1.5 min (90 s)</option>
+          <option value="120">~2 min (120 s)</option>
+          <option value="180">~3 min (180 s)</option>
+        </select>
+      </label>
+    </div>
+    <label class="add-part-check"><input type="checkbox" id="addPartEnding"> Final part (conclude the story instead of ending on a cliffhanger / choice)</label>
+    <div class="modal-actions">
+      <button id="addPartCancel" class="ghost" type="button">Cancel</button>
+      <button id="addPartGo" class="primary" type="button">✦ Generate next part</button>
+    </div>
+  </div>
+</div>
 <script src="/ui/app.js"></script>
+<script src="/ui/settings.js"></script>
 </body>
 </html>

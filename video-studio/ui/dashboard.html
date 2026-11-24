@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard · Animix</title>
+<link rel="icon" type="image/svg+xml" href="/ui/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<script src="/ui/theme.js"></script>
+<link rel="stylesheet" href="/ui/style.css">
+<link rel="stylesheet" href="/ui/dashboard.css">
+</head>
+<body class="dash">
+<header class="dtop">
+  <a class="dbrand" href="/dashboard"><img class="brand-mark" src="/ui/favicon.svg" alt="" width="26" height="26"><span class="brand-word">Anim<em>ix</em></span></a>
+  <label class="dsearch">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="q" type="search" placeholder="Search videos" aria-label="Search videos"><kbd>/</kbd>
+  </label>
+  <button id="themeBtn" class="dicon" type="button">◐</button>
+  <a href="/#settings" class="dicon" title="Settings: API keys, voice, AI" aria-label="Settings">⚙</a>
+  <a href="/?new" id="newBtn" class="primary dnew">+ New video</a>
+</header>
+<div class="dlayout">
+  <aside class="drail">
+    <nav id="folders" class="dfolders" aria-label="Folders"></nav>
+    <button id="newFolder" class="dfolder add" type="button">+ New folder</button>
+    <p id="stats" class="dstats"></p>
+    <button id="cleanBtn" class="dclean" type="button" hidden title="Temporary stitch files of finished videos"></button>
+  </aside>
+  <main class="dmain">
+    <div class="dhead">
+      <div class="dtitle"><h1 id="fname">All videos</h1><p id="fsub"></p></div>
+      <div class="dtools">
+        <div id="statusSeg" class="seg" role="tablist" aria-label="Status"></div>
+        <select id="sort" aria-label="Sort"><option value="recent">Recently edited</option><option value="created">Newest first</option><option value="title">Title A–Z</option></select>
+      </div>
+    </div>
+    <div id="grid" class="dgrid"></div>
+    <div id="emptyMsg" class="dempty" hidden></div>
+  </main>
+</div>
+<footer class="brand-foot dash-foot" aria-hidden="true"><span>Animix</span></footer>
+<div id="menu" class="dmenu" hidden role="menu"></div>
+<script src="/ui/dashboard.js"></script>
+</body>
+</html>
